@@ -1,6 +1,7 @@
 package githubwebhook
 
 import (
+	"context"
 	"github.com/google/go-github/v26/github"
 	"io/ioutil"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 type Http struct {
 	Handler   Handler
 	SecretKey []byte
+	Contexter func(ctx context.Context, event interface{}) context.Context
 }
 
 func (h *Http) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -30,7 +32,11 @@ func (h *Http) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var resp []byte
+
 	ctx := r.Context()
+	if h.Contexter != nil {
+		ctx = h.Contexter(ctx, event)
+	}
 
 	switch event := event.(type) {
 	case *github.CheckRunEvent:
