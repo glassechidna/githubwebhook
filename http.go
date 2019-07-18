@@ -10,7 +10,7 @@ import (
 type Http struct {
 	Handler   Handler
 	SecretKey []byte
-	Contexter func(ctx context.Context, event interface{}) context.Context
+	Contexter func(ctx context.Context, r *http.Request, event interface{}) context.Context
 }
 
 func (h *Http) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -35,7 +35,7 @@ func (h *Http) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	ctx := r.Context()
 	if h.Contexter != nil {
-		ctx = h.Contexter(ctx, event)
+		ctx = h.Contexter(ctx, r, event)
 	}
 
 	switch event := event.(type) {
